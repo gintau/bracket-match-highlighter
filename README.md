@@ -9,3 +9,8 @@ Install
 =========================
 
 Please place the extension folder under extensions folder. To locate it, see Help > Show Extensions Folder.
+
+License
+===============
+
+Licensed under MIT
