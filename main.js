@@ -1,3 +1,27 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2014 Ting-Kuan Wu (gintau2000@gmail.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 /*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
 /*global define, $, brackets, window */
 
@@ -9,42 +33,62 @@ define(function (require, exports, module) {
         EditorManager   = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule("document/DocumentManager"),
         Menus           = brackets.getModule("command/Menus"),
-        ExtensionUtils  = brackets.getModule("utils/ExtensionUtils"),
-        COMMAND_ID      = "net.gintau.matchhighlighter";
+        ExtensionUtils  = brackets.getModule("utils/ExtensionUtils");
+         
+    var COMMAND_ID      = "net.gintau.matchhighlighter",
+        isEnabled       = false;
     
-    // Insert default overlay style at the beginning of head, so any custom style can overwrite it.
-    var styleUrl = ExtensionUtils.getModulePath(module, "default.css");
-    var style = $('<link rel="stylesheet" type="text/css" />');
-    $(document.head).prepend(style);
-    $(style).attr('href', styleUrl);
-    
-    // Enable match-highlighter plugin of CodeMirror2 (this plugin is default contained in sprint 37) 
-    var script = document.createElement("script");
-    script.src = "thirdparty/CodeMirror2/addon/search/match-highlighter.js";
-    document.head.appendChild(script);
-              
-    $(EditorManager).on("activeEditorChange", function(e, activeEditor, prevEditor){   
-        activateHighlight(activeEditor);
-        deactivateHighlight(prevEditor);
-    });           
-    
-    function activateHighlight(editor) {       
-        if (!editor) {
-            return;
-        }        
-        
-        // TODO: Direct access to _codeMirror is deprecated, needs to set option via editor.
-        var codeMirror = editor._codeMirror;
-        codeMirror.setOption("highlightSelectionMatches", {showToken:true});
+    function appendDefaultStyle(){
+        // Insert default overlay style at the beginning of head, so any custom style can overwrite it.
+        var styleUrl = ExtensionUtils.getModulePath(module, "default.css");
+        var style = $('<link rel="stylesheet" type="text/css" />');
+        $(document.head).prepend(style);
+        $(style).attr('href', styleUrl);
     }
     
-    function deactivateHighlight(editor){
+    function enableHighlighterAddOn(){
+        // Enable match-highlighter plugin of CodeMirror2 (this plugin is default contained in sprint 37) 
+        var script = document.createElement("script");
+        script.src = "thirdparty/CodeMirror2/addon/search/match-highlighter.js";
+        document.head.appendChild(script);             
+    }
+    
+    function attachHighlighter(){        
+        $(EditorManager).on("activeEditorChange", function(e, activeEditor, prevEditor){              
+            setEditorHighlighted(activeEditor, true);
+            setEditorHighlighted(prevEditor, false);
+        });
+    }
+    
+    function setEditorHighlighted(editor, enabled){
         if (!editor) {
             return;
         }
         
         // TODO: Direct access to _codeMirror is deprecated, needs to set option via editor.
         var codeMirror = editor._codeMirror;
-        codeMirror.setOption("highlightSelectionMatches", false);
-    }   
+        codeMirror.setOption("highlightSelectionMatches", (isEnabled && enabled) ? {showToken:true}: false);
+    }
+     
+    function toggleHighlighter(){
+        var editor = EditorManager.getActiveEditor();
+        isEnabled = !isEnabled;
+        setEditorHighlighted(editor, true);
+        this.setChecked(isEnabled);
+    }
+    
+    function registerCommand(){
+        var CommandManager  = brackets.getModule("command/CommandManager");
+        var command = CommandManager.register("Highlight Selection", COMMAND_ID, toggleHighlighter);
+        command.setChecked(isEnabled);
+    
+        var menu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
+        menu.addMenuItem(Menus.DIVIDER);
+        menu.addMenuItem(COMMAND_ID);
+    }
+    
+    appendDefaultStyle();
+    enableHighlighterAddOn();
+    attachHighlighter();
+    registerCommand();
 });
