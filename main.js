@@ -33,10 +33,15 @@ define(function (require, exports, module) {
         EditorManager   = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule("document/DocumentManager"),
         Menus           = brackets.getModule("command/Menus"),
-        ExtensionUtils  = brackets.getModule("utils/ExtensionUtils");
-         
+        ExtensionUtils  = brackets.getModule("utils/ExtensionUtils"),
+        PreferencesManager = brackets.getModule("preferences/PreferencesManager");
+             
     var COMMAND_ID      = "net.gintau.matchhighlighter",
-        isEnabled       = false;
+        extensionName   = "bracket-match-highlighter",
+        prefs = PreferencesManager.getExtensionPrefs(extensionName);
+    
+    prefs.definePreference("enabled", "boolean", false);
+    var isEnabled = prefs.get("enabled");
     
     function appendDefaultStyle(){
         // Insert default overlay style at the beginning of head, so any custom style can overwrite it.
@@ -72,7 +77,11 @@ define(function (require, exports, module) {
      
     function toggleHighlighter(){
         var editor = EditorManager.getActiveEditor();
+        
         isEnabled = !isEnabled;
+        prefs.set("enabled", isEnabled);
+        prefs.save();
+        
         setEditorHighlighted(editor, true);
         this.setChecked(isEnabled);
     }

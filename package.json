@@ -4,11 +4,13 @@
     "version": "0.1.0",
     "description": "Enable editor to highlight tokens that match selected text",
     "homepage": "https://github.com/gintau/bracket-match-highlighter",
-    "keywords": ["highlight", "view", "token"],
+    "keywords": ["highlight", "view", "token", "text selection"],
     "categories": ["visual"],
-    "engines": ">=36",
-    "contributors": [
-        {"name": "Ting-Kuan Wu", "email": "gintau2000@gmail.com", "url": "https://github.com/gintau"},
-    ],
+    "engines": { "brackets": ">=0.36.0" },
+    "contributors": [{
+            "name": "Ting-Kuan Wu", 
+            "email": "gintau2000@gmail.com", 
+            "url": "https://github.com/gintau"
+    }],
     "license": "MIT"
 }
