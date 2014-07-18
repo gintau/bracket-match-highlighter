@@ -30,6 +30,8 @@ define(function (require, exports, module) {
     "use strict";
 
     var CommandManager  = brackets.getModule("command/CommandManager"),
+        CodeMirror      = brackets.getModule("thirdparty/CodeMirror2/lib/codemirror"),
+        Highlight       = brackets.getModule("thirdparty/CodeMirror2/addon/search/match-highlighter"),
         EditorManager   = brackets.getModule("editor/EditorManager"),
         DocumentManager = brackets.getModule("document/DocumentManager"),
         Menus           = brackets.getModule("command/Menus"),
@@ -49,13 +51,6 @@ define(function (require, exports, module) {
         var style = $('<link rel="stylesheet" type="text/css" />');
         $(document.head).prepend(style);
         $(style).attr('href', styleUrl);
-    }
-    
-    function enableHighlighterAddOn(){
-        // Enable match-highlighter plugin of CodeMirror2 (this plugin is default contained in sprint 37) 
-        var script = document.createElement("script");
-        script.src = "thirdparty/CodeMirror2/addon/search/match-highlighter.js";
-        document.head.appendChild(script);             
     }
     
     function attachHighlighter(){        
@@ -97,7 +92,6 @@ define(function (require, exports, module) {
     }
     
     appendDefaultStyle();
-    enableHighlighterAddOn();
     attachHighlighter();
     registerCommand();
 });
